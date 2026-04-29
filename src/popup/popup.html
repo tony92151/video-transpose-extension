@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Riff Repeat</title>
+    <link rel="stylesheet" href="./popup.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>Riff Repeat</h1>
+          <p id="statusText" class="status">Checking tab...</p>
+        </div>
+        <button id="resetAll" class="icon-button" type="button" title="Reset all controls">Reset</button>
+      </header>
+
+      <p id="videoTitle" class="video-title"></p>
+      <p id="audioMessage" class="audio-message" hidden></p>
+
+      <section class="control-section">
+        <div class="section-head">
+          <h2>Pitch</h2>
+          <output id="pitchValue">0 st</output>
+        </div>
+        <div class="stepper">
+          <button id="pitchDown" class="control" type="button" title="Lower pitch">-</button>
+          <input id="pitchRange" class="control" type="range" min="-12" max="12" step="1" value="0" aria-label="Pitch semitones">
+          <button id="pitchUp" class="control" type="button" title="Raise pitch">+</button>
+          <button id="pitchReset" class="control slim" type="button" title="Reset pitch">0</button>
+        </div>
+      </section>
+
+      <section class="control-section">
+        <div class="section-head">
+          <h2>Speed</h2>
+          <output id="speedValue">100%</output>
+        </div>
+        <input id="speedRange" class="control" type="range" min="0.25" max="4" step="0.05" value="1" aria-label="Playback speed">
+        <div class="presets" aria-label="Speed presets">
+          <button class="control preset" type="button" data-speed="0.5">0.5x</button>
+          <button class="control preset" type="button" data-speed="0.75">0.75x</button>
+          <button class="control preset" type="button" data-speed="1">1x</button>
+          <button class="control preset" type="button" data-speed="1.25">1.25x</button>
+          <button class="control preset" type="button" data-speed="1.5">1.5x</button>
+          <button class="control preset" type="button" data-speed="2">2x</button>
+        </div>
+      </section>
+
+      <section class="control-section">
+        <div class="section-head">
+          <h2>Loop</h2>
+          <output id="loopValue">A -- / B --</output>
+        </div>
+        <div class="loop-grid">
+          <button id="setA" class="control" type="button">Set A</button>
+          <button id="setB" class="control" type="button">Set B</button>
+          <button id="toggleLoop" class="control" type="button">Loop</button>
+          <button id="jumpA" class="control" type="button">Jump A</button>
+          <button id="clearLoop" class="control danger" type="button">Clear</button>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./popup.js"></script>
+  </body>
+</html>

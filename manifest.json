@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "Riff Repeat",
+  "description": "Local YouTube practice controls for pitch, speed, and A/B looping.",
+  "version": "0.1.0",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "tabCapture",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://youtube.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Riff Repeat",
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "src/icons/icon.svg",
+      "32": "src/icons/icon.svg",
+      "48": "src/icons/icon.svg",
+      "128": "src/icons/icon.svg"
+    }
+  },
+  "icons": {
+    "16": "src/icons/icon.svg",
+    "32": "src/icons/icon.svg",
+    "48": "src/icons/icon.svg",
+    "128": "src/icons/icon.svg"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/*",
+        "https://youtube.com/*"
+      ],
+      "js": [
+        "src/content/youtube-content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "src/offscreen/pitch-shift-processor.js"
+      ],
+      "matches": [
+        "https://www.youtube.com/*",
+        "https://youtube.com/*"
+      ]
+    }
+  ]
+}
