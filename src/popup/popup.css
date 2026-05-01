@@ -162,6 +162,13 @@ h2 {
   gap: 12px;
 }
 
+.section-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
 output {
   min-width: 62px;
   color: var(--accent-strong);
@@ -173,7 +180,7 @@ output {
 
 .stepper {
   display: grid;
-  grid-template-columns: 38px minmax(0, 1fr) 38px 40px;
+  grid-template-columns: 38px minmax(0, 1fr) 38px;
   gap: 8px;
   align-items: center;
 }
@@ -219,7 +226,7 @@ output {
 
 .loop-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -285,8 +292,12 @@ input:disabled {
   border-color: var(--accent-strong);
 }
 
-.neutral {
+.section-reset {
+  min-height: 26px;
+  padding: 0 8px;
   color: var(--muted-strong);
+  font-size: 11px;
+  background: #ffffff;
 }
 
 .danger:hover:not(:disabled),
