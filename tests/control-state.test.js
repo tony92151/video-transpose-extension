@@ -14,6 +14,25 @@ describe('control state reducer', () => {
     assert.equal(pitched.pitchSemitones, -3);
   });
 
+  it('updates one channel volume without changing the other channel', () => {
+    const settings = createDefaultSettings('abc123');
+    const leftChanged = applyControlUpdate(settings, {
+      type: 'SET_CHANNEL_VOLUME',
+      channel: 'left',
+      volume: 1.5
+    });
+    const rightChanged = applyControlUpdate(leftChanged, {
+      type: 'SET_CHANNEL_VOLUME',
+      channel: 'right',
+      volume: -1
+    });
+
+    assert.deepEqual(rightChanged.channelVolumes, {
+      left: 1.5,
+      right: 0
+    });
+  });
+
   it('sets A/B loop points using the current playback time', () => {
     const settings = createDefaultSettings('abc123');
     const withA = applyControlUpdate(settings, { type: 'SET_LOOP_POINT', point: 'A', time: 12 });
@@ -31,6 +50,10 @@ describe('control state reducer', () => {
       ...createDefaultSettings('abc123'),
       pitchSemitones: 5,
       speed: 0.5,
+      channelVolumes: {
+        left: 0.5,
+        right: 1.75
+      },
       loop: {
         enabled: true,
         start: 2,

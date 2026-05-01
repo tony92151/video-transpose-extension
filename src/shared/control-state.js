@@ -21,6 +21,22 @@ export function applyControlUpdate(settings, action = {}) {
         pitchSemitones: action.pitchSemitones
       });
 
+    case 'SET_CHANNEL_VOLUME': {
+      const channel = action.channel === 'left' || action.channel === 'right' ? action.channel : null;
+
+      if (!channel) {
+        return current;
+      }
+
+      return withNormalizedSettings({
+        ...current,
+        channelVolumes: {
+          ...current.channelVolumes,
+          [channel]: action.volume
+        }
+      });
+    }
+
     case 'SET_LOOP': {
       return withNormalizedSettings({
         ...current,

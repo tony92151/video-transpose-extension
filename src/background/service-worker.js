@@ -12,6 +12,10 @@ const DEFAULT_AUDIO_STATUS = Object.freeze({
   available: true,
   active: false,
   pitchSemitones: 0,
+  channelVolumes: {
+    left: 1,
+    right: 1
+  },
   message: ''
 });
 
@@ -36,7 +40,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
-  stopPitchProcessing(tabId).catch(() => {});
+  stopAudioProcessing(tabId).catch(() => {});
   audioStatusByTab.delete(tabId);
 });
 
@@ -60,6 +64,15 @@ async function handleRuntimeMessage(message = {}, sender = {}) {
         state: await updateSettingsForTab(await resolveTabId(message.tabId), {
           type: 'SET_PITCH',
           pitchSemitones: message.pitchSemitones
+        })
+      };
+
+    case MESSAGE_TYPES.POPUP_SET_CHANNEL_VOLUME:
+      return {
+        state: await updateSettingsForTab(await resolveTabId(message.tabId), {
+          type: 'SET_CHANNEL_VOLUME',
+          channel: message.channel,
+          volume: message.volume
         })
       };
 
@@ -113,6 +126,9 @@ async function handleRuntimeMessage(message = {}, sender = {}) {
         available: message.available !== false,
         active: Boolean(message.active),
         pitchSemitones: Number(message.pitchSemitones) || 0,
+        channelVolumes: serializeSettings({
+          channelVolumes: message.channelVolumes
+        }).channelVolumes,
         message: message.message || ''
       });
 
@@ -180,7 +196,7 @@ async function getStateForTab(tabId) {
     settings
   });
 
-  await reconcilePitchProcessing(tabId, settings.pitchSemitones);
+  await reconcileAudioProcessing(tabId, settings);
 
   return buildState({
     tabId,
@@ -240,7 +256,7 @@ async function updateSettingsForTab(tabId, action) {
     });
   }
 
-  await reconcilePitchProcessing(tabId, nextSettings.pitchSemitones);
+  await reconcileAudioProcessing(tabId, nextSettings);
 
   return getStateForTab(tabId);
 }
@@ -274,8 +290,8 @@ async function restoreSettingsForContentTab(tabId, status = {}) {
     settings
   }).catch(() => {});
 
-  if (getAudioStatus(tabId).active || settings.pitchSemitones === 0) {
-    await reconcilePitchProcessing(tabId, settings.pitchSemitones);
+  if (getAudioStatus(tabId).active || !needsAudioProcessing(settings)) {
+    await reconcileAudioProcessing(tabId, settings);
   }
 }
 
@@ -335,13 +351,15 @@ async function sendContentMessage(tabId, message) {
   return response;
 }
 
-async function reconcilePitchProcessing(tabId, pitchSemitones) {
+async function reconcileAudioProcessing(tabId, settings) {
   if (!Number.isInteger(tabId)) {
     return;
   }
 
-  if (pitchSemitones === 0) {
-    await stopPitchProcessing(tabId);
+  const audioSettings = serializeSettings(settings);
+
+  if (!needsAudioProcessing(audioSettings)) {
+    await stopAudioProcessing(tabId);
     return;
   }
 
@@ -352,16 +370,22 @@ async function reconcilePitchProcessing(tabId, pitchSemitones) {
       await sendExtensionMessage({
         type: MESSAGE_TYPES.OFFSCREEN_SET_PITCH,
         tabId,
-        pitchSemitones
+        pitchSemitones: audioSettings.pitchSemitones
+      });
+      await sendExtensionMessage({
+        type: MESSAGE_TYPES.OFFSCREEN_SET_CHANNEL_VOLUMES,
+        tabId,
+        channelVolumes: audioSettings.channelVolumes
       });
     } else {
-      await startPitchProcessing(tabId, pitchSemitones);
+      await startAudioProcessing(tabId, audioSettings);
     }
 
     setAudioStatus(tabId, {
       available: true,
       active: true,
-      pitchSemitones,
+      pitchSemitones: audioSettings.pitchSemitones,
+      channelVolumes: audioSettings.channelVolumes,
       message: ''
     });
   } catch (error) {
@@ -369,12 +393,13 @@ async function reconcilePitchProcessing(tabId, pitchSemitones) {
       available: false,
       active: false,
       pitchSemitones: 0,
+      channelVolumes: createDefaultSettings('').channelVolumes,
       message: formatError(error)
     });
   }
 }
 
-async function startPitchProcessing(tabId, pitchSemitones) {
+async function startAudioProcessing(tabId, settings) {
   await ensureOffscreenDocument();
 
   const streamId = await chromeCall((callback) => {
@@ -394,7 +419,8 @@ async function startPitchProcessing(tabId, pitchSemitones) {
     type: MESSAGE_TYPES.OFFSCREEN_START_AUDIO,
     tabId,
     streamId,
-    pitchSemitones
+    pitchSemitones: settings.pitchSemitones,
+    channelVolumes: settings.channelVolumes
   });
 
   if (!response?.ok) {
@@ -402,7 +428,7 @@ async function startPitchProcessing(tabId, pitchSemitones) {
   }
 }
 
-async function stopPitchProcessing(tabId) {
+async function stopAudioProcessing(tabId) {
   if (!Number.isInteger(tabId)) {
     return;
   }
@@ -420,8 +446,17 @@ async function stopPitchProcessing(tabId) {
     available: getAudioStatus(tabId).available,
     active: false,
     pitchSemitones: 0,
+    channelVolumes: createDefaultSettings('').channelVolumes,
     message: ''
   });
+}
+
+function needsAudioProcessing(settings) {
+  const audioSettings = serializeSettings(settings);
+
+  return audioSettings.pitchSemitones !== 0 ||
+    audioSettings.channelVolumes.left !== 1 ||
+    audioSettings.channelVolumes.right !== 1;
 }
 
 async function ensureOffscreenDocument() {

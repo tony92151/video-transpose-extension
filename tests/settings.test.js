@@ -21,6 +21,10 @@ describe('settings', () => {
       videoId: 'abc123',
       pitchSemitones: 0,
       speed: 1,
+      channelVolumes: {
+        left: 1,
+        right: 1
+      },
       loop: {
         enabled: false,
         start: null,
@@ -44,6 +48,11 @@ describe('settings', () => {
       videoId: 'wrong',
       pitchSemitones: 20,
       speed: 0.1,
+      channelVolumes: {
+        left: 5,
+        right: -1,
+        center: 0.5
+      },
       loop: {
         enabled: true,
         start: 12,
@@ -56,6 +65,10 @@ describe('settings', () => {
       videoId: 'abc123',
       pitchSemitones: 12,
       speed: 0.25,
+      channelVolumes: {
+        left: 2,
+        right: 0
+      },
       loop: {
         enabled: false,
         start: 12,
@@ -70,6 +83,11 @@ describe('settings', () => {
       videoId: 'abc123',
       pitchSemitones: -4,
       speed: 1.25,
+      channelVolumes: {
+        left: 1.25,
+        right: 0.5,
+        center: 2
+      },
       loop: {
         enabled: true,
         start: 2,
@@ -83,6 +101,10 @@ describe('settings', () => {
       videoId: 'abc123',
       pitchSemitones: -4,
       speed: 1.25,
+      channelVolumes: {
+        left: 1.25,
+        right: 0.5
+      },
       loop: {
         enabled: true,
         start: 2,
