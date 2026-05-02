@@ -10,6 +10,12 @@ const elements = {
   pitchReset: document.querySelector('#pitchReset'),
   pitchRange: document.querySelector('#pitchRange'),
   pitchValue: document.querySelector('#pitchValue'),
+  channelReset: document.querySelector('#channelReset'),
+  leftVolumeRange: document.querySelector('#leftVolumeRange'),
+  leftVolumeValue: document.querySelector('#leftVolumeValue'),
+  rightVolumeRange: document.querySelector('#rightVolumeRange'),
+  rightVolumeValue: document.querySelector('#rightVolumeValue'),
+  speedReset: document.querySelector('#speedReset'),
   speedRange: document.querySelector('#speedRange'),
   speedValue: document.querySelector('#speedValue'),
   presets: document.querySelectorAll('.preset'),
@@ -34,6 +40,10 @@ function bindEvents() {
   elements.pitchUp.addEventListener('click', () => setPitch(getPitch() + 1));
   elements.pitchReset.addEventListener('click', () => setPitch(0));
   elements.pitchRange.addEventListener('change', () => setPitch(Number(elements.pitchRange.value)));
+  elements.channelReset.addEventListener('click', resetChannels);
+  elements.leftVolumeRange.addEventListener('change', () => setChannelVolume('left', Number(elements.leftVolumeRange.value)));
+  elements.rightVolumeRange.addEventListener('change', () => setChannelVolume('right', Number(elements.rightVolumeRange.value)));
+  elements.speedReset.addEventListener('click', () => setSpeed(1));
   elements.speedRange.addEventListener('change', () => setSpeed(Number(elements.speedRange.value)));
   elements.presets.forEach((button) => {
     button.addEventListener('click', () => setSpeed(Number(button.dataset.speed)));
@@ -105,6 +115,24 @@ function setSpeed(speed) {
   });
 }
 
+function setChannelVolume(channel, volume) {
+  sendPopupMessage(MESSAGE_TYPES.POPUP_SET_CHANNEL_VOLUME, {
+    channel,
+    volume
+  });
+}
+
+async function resetChannels() {
+  await sendPopupMessage(MESSAGE_TYPES.POPUP_SET_CHANNEL_VOLUME, {
+    channel: 'left',
+    volume: 1
+  });
+  await sendPopupMessage(MESSAGE_TYPES.POPUP_SET_CHANNEL_VOLUME, {
+    channel: 'right',
+    volume: 1
+  });
+}
+
 function render() {
   if (!state) {
     setControlsDisabled(true);
@@ -123,6 +151,15 @@ function render() {
 
   elements.pitchRange.value = String(settings.pitchSemitones);
   elements.pitchValue.textContent = `${formatSigned(settings.pitchSemitones)} st`;
+
+  const channelVolumes = settings.channelVolumes || {
+    left: 1,
+    right: 1
+  };
+  elements.leftVolumeRange.value = String(channelVolumes.left);
+  elements.leftVolumeValue.textContent = formatPercent(channelVolumes.left);
+  elements.rightVolumeRange.value = String(channelVolumes.right);
+  elements.rightVolumeValue.textContent = formatPercent(channelVolumes.right);
 
   elements.speedRange.value = String(settings.speed);
   elements.speedValue.textContent = `${Math.round(settings.speed * 100)}%`;
@@ -186,6 +223,10 @@ function getPitch() {
 function formatSigned(value) {
   const number = Number(value) || 0;
   return number > 0 ? `+${number}` : String(number);
+}
+
+function formatPercent(value) {
+  return `${Math.round((Number(value) || 0) * 100)}%`;
 }
 
 function formatTime(value) {

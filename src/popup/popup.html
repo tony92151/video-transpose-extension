@@ -9,35 +9,63 @@
   <body>
     <main class="shell">
       <header class="topbar">
-        <div>
+        <div class="brand">
           <h1>Riff Repeat</h1>
           <p id="statusText" class="status">Checking tab...</p>
         </div>
-        <button id="resetAll" class="icon-button" type="button" title="Reset all controls">Reset</button>
+        <button id="resetAll" class="reset-button" type="button" title="Reset all controls">Reset</button>
       </header>
 
-      <p id="videoTitle" class="video-title"></p>
+      <div class="now-playing" aria-live="polite">
+        <p id="videoTitle" class="video-title"></p>
+      </div>
       <p id="audioMessage" class="audio-message" hidden></p>
 
       <section class="control-section">
         <div class="section-head">
           <h2>Pitch</h2>
-          <output id="pitchValue">0 st</output>
+          <div class="section-actions">
+            <output id="pitchValue">0 st</output>
+            <button id="pitchReset" class="control section-reset" type="button" title="Reset pitch">Reset</button>
+          </div>
         </div>
         <div class="stepper">
           <button id="pitchDown" class="control" type="button" title="Lower pitch">-</button>
           <input id="pitchRange" class="control" type="range" min="-12" max="12" step="1" value="0" aria-label="Pitch semitones">
           <button id="pitchUp" class="control" type="button" title="Raise pitch">+</button>
-          <button id="pitchReset" class="control slim" type="button" title="Reset pitch">0</button>
+        </div>
+      </section>
+
+      <section class="control-section">
+        <div class="section-head">
+          <h2>Channels</h2>
+          <button id="channelReset" class="control section-reset" type="button" title="Reset channels">Reset</button>
+        </div>
+        <div class="channel-row">
+          <label for="leftVolumeRange">Left</label>
+          <input id="leftVolumeRange" class="control" type="range" min="0" max="2" step="0.01" value="1" aria-label="Left channel volume">
+          <output id="leftVolumeValue">100%</output>
+        </div>
+        <div class="channel-row">
+          <label for="rightVolumeRange">Right</label>
+          <input id="rightVolumeRange" class="control" type="range" min="0" max="2" step="0.01" value="1" aria-label="Right channel volume">
+          <output id="rightVolumeValue">100%</output>
         </div>
       </section>
 
       <section class="control-section">
         <div class="section-head">
           <h2>Speed</h2>
-          <output id="speedValue">100%</output>
+          <div class="section-actions">
+            <output id="speedValue">100%</output>
+            <button id="speedReset" class="control section-reset" type="button" title="Reset speed">Reset</button>
+          </div>
         </div>
-        <input id="speedRange" class="control" type="range" min="0.25" max="4" step="0.05" value="1" aria-label="Playback speed">
+        <div class="range-field">
+          <span>Slow</span>
+          <input id="speedRange" class="control" type="range" min="0.25" max="4" step="0.05" value="1" aria-label="Playback speed">
+          <span>Fast</span>
+        </div>
         <div class="presets" aria-label="Speed presets">
           <button class="control preset" type="button" data-speed="0.5">0.5x</button>
           <button class="control preset" type="button" data-speed="0.75">0.75x</button>
@@ -51,14 +79,16 @@
       <section class="control-section">
         <div class="section-head">
           <h2>Loop</h2>
-          <output id="loopValue">A -- / B --</output>
+          <div class="section-actions">
+            <output id="loopValue">A -- / B --</output>
+            <button id="clearLoop" class="control section-reset danger" type="button" title="Reset loop">Reset</button>
+          </div>
         </div>
         <div class="loop-grid">
           <button id="setA" class="control" type="button">Set A</button>
           <button id="setB" class="control" type="button">Set B</button>
           <button id="toggleLoop" class="control" type="button">Loop</button>
           <button id="jumpA" class="control" type="button">Jump A</button>
-          <button id="clearLoop" class="control danger" type="button">Clear</button>
         </div>
       </section>
     </main>

@@ -16,6 +16,10 @@
     videoId: '',
     pitchSemitones: 0,
     speed: 1,
+    channelVolumes: {
+      left: 1,
+      right: 1
+    },
     loop: {
       enabled: false,
       start: null,
@@ -54,6 +58,25 @@
     return Math.round(Math.max(0.25, Math.min(4, number)) * 100) / 100;
   }
 
+  function clampChannelVolume(value) {
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+      return 1;
+    }
+
+    return Math.round(Math.max(0, Math.min(2, number)) * 100) / 100;
+  }
+
+  function normalizeChannelVolumes(channelVolumes = {}) {
+    const source = channelVolumes && typeof channelVolumes === 'object' ? channelVolumes : {};
+
+    return {
+      left: clampChannelVolume(source.left),
+      right: clampChannelVolume(source.right)
+    };
+  }
+
   function normalizeLoop(loop = {}) {
     const start = normalizeTime(loop.start);
     const end = normalizeTime(loop.end);
@@ -71,6 +94,7 @@
       videoId: typeof settings.videoId === 'string' ? settings.videoId : activeVideoId || '',
       pitchSemitones: Math.max(-12, Math.min(12, Math.round(Number(settings.pitchSemitones) || 0))),
       speed: clampSpeed(settings.speed),
+      channelVolumes: normalizeChannelVolumes(settings.channelVolumes),
       loop: normalizeLoop(settings.loop)
     };
   }
